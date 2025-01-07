@@ -1,6 +1,8 @@
 import { Text, View } from 'react-native';
 
 import { EditScreenInfo } from './EditScreenInfo';
+import { Link } from 'expo-router';
+import { HeaderButton } from './HeaderButton';
 
 type ScreenContentProps = {
   title: string;
@@ -15,6 +17,9 @@ export const ScreenContent = ({ title, path, children }: ScreenContentProps) => 
       <View className={styles.separator} />
       <EditScreenInfo path={path} />
       {children}
+      <Link href="/modal" asChild>
+        <HeaderButton />
+      </Link>
     </View>
   );
 };
