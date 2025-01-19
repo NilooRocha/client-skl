@@ -13,8 +13,6 @@ export default function SigninLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="otp" options={{ presentation: 'modal' }} />
-      <Stack.Screen name="selectCity" options={{ presentation: 'modal' }} />
       <Stack.Screen name="study" />
     </Stack>
   );

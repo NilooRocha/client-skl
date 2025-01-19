@@ -1,10 +1,12 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { TextInput, View, Text, Pressable } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Button } from "~/components/ui/button";
+import { useAuth } from "~/context/AuthContext";
 
 export default function Otp() {
   const { userEmail } = useLocalSearchParams();
+  const { isAuthenticated, user } = useAuth();
 
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
@@ -28,7 +30,7 @@ export default function Otp() {
     const otpCode = otp.join("");
     if (otpCode.length === 4) {
       try {
-        const response = await fetch("http://192.168.1.58:8080/user/verify", {
+        const response = await fetch("http://192.168.1.58:8080/verify-account", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -44,8 +46,16 @@ export default function Otp() {
         }
 
         console.log("OTP verified successfully");
+        if (isAuthenticated) {
+          if (user?.location == "") {
+            router.replace("/(main)/(initialConfig)");
+          } else {
+            router.replace("/(main)/(tabs)/home");
+          }
+        } else {
 
-        router.replace("/(auth)/login");
+          router.replace("/(auth)/login");
+        }
       } catch (error) {
         console.error("Error verifying OTP:", error);
         setOtpError(true);
@@ -55,6 +65,26 @@ export default function Otp() {
     }
   };
 
+  const resendCode = async () => {
+    try {
+      const response = await fetch("http://192.168.1.58:8080/resend-verification-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: userEmail }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to resend verification code");
+      }
+
+      console.log("Verification code resent successfully");
+    } catch (error) {
+      console.error("Error resending verification code:", error);
+    } finally {
+    }
+  };
 
   return (
     <View className="mt-6 p-4 flex-1">
@@ -100,8 +130,10 @@ export default function Otp() {
 
       <View className="flex-row justify-center items-center mt-4">
         <Text className="text-foreground text-xl">Didn't receive the code? </Text>
-        <Pressable onPress={() => console.log("Navigate to login")}>
-          <Text className="text-primary text-xl font-bold">Send Again</Text>
+        <Pressable onPress={resendCode}>
+          <Text className={`text-xl font-bold text-primary`}>
+            Send Again
+          </Text>
         </Pressable>
       </View>
     </View>

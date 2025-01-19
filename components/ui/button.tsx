@@ -5,7 +5,7 @@ import { cn } from '~/lib/utils';
 const buttonVariants = {
     default: 'bg-primary',
     destructive: 'bg-destructive',
-    outline: 'border border-primary bg-background',
+    outline: 'border border-primary ',
     secondary: 'bg-secondary',
     ghost: 'bg-transparent',
     link: '',
@@ -35,11 +35,13 @@ export interface ButtonProps {
     textClassName?: string;
     children: React.ReactNode;
     onPress?: () => void;
+    disabled?: boolean;
 }
 
 const Button = ({
     variant = 'default',
     size = 'default',
+    disabled = false,
     className,
     textClassName,
     children,
@@ -49,11 +51,13 @@ const Button = ({
     return (
         <Pressable
             onPress={onPress}
+            disabled={disabled}
             className={cn(
-                'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50',
+                'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2',
+                disabled ? 'opacity-50' : 'opacity-100',
                 buttonVariants[variant],
                 sizeVariants[size],
-                className
+                className,
             )}
             {...props}
         >

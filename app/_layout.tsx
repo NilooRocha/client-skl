@@ -24,7 +24,7 @@ function RootLayout() {
     return (
         <GestureHandlerRootView style={{ flex: 1, height: '100%' }}>
 
-            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "hsl(243 61% 100%)" } }}>
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#fffff" } }}>
                 {isAuthenticated ? (
                     <Stack.Screen name="(main)" />
                 ) : (

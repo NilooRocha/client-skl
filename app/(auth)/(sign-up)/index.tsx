@@ -35,14 +35,18 @@ const schema = z.object({
   path: ["confirmPassword"],
 });
 
-
-
-// Inferindo o tipo com base no esquema Zod
 type FormData = z.infer<typeof schema>;
 
 export default function Signin() {
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
+    // TODO: remove default value
+    defaultValues: {
+      fullName: "aaaaa",
+      email: "aaaa@aaa.aa",
+      password: "aaaa",
+      confirmPassword: "aaaa",
+    },
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
@@ -64,7 +68,7 @@ export default function Signin() {
       }
 
       router.push({
-        pathname: "/(auth)/(sign-up)/otp",
+        pathname: "/(auth)/otp",
         params: { userEmail: data.email },
       });
     } catch (error) {

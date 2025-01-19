@@ -25,16 +25,34 @@ export default function Login() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
+    // TODO: remove default value
+    defaultValues: {
+      email: "aaaa@aaa.aa",
+      password: "aaaa"
+    },
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      await login(data.email, data.password);
-      console.log("Login successful");
-      router.push("/(main)/home");
-    } catch (error) {
-      console.log("error: (");
+      const user = await login(data.email, data.password);
+      console.log(`Login successful, welcome back ${user?.fullName}`);
 
+      if (user?.isVerified) {
+        if (user?.location === "") {
+          router.navigate("/(main)/(initialConfig)");
+        } else {
+          router.navigate("/(main)/(tabs)/home");
+        }
+      } else {
+        router.push({
+          pathname: "/(auth)/otp",
+          params: { userEmail: data.email },
+        })
+      }
+
+
+
+    } catch (error) {
       console.error("Login failed:", error);
       setIsInvalideCredentials(true)
     }

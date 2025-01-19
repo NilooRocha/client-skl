@@ -1,23 +1,18 @@
-import { Tabs } from "expo-router";
-import { TabBarIcon } from "../../components/TabBarIcon";
+import { Stack } from "expo-router";
+import { useAuth } from "~/context/AuthContext";
 
 export default function MainLayout() {
-  return (
-    <Tabs>
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
-        }}
-      />
-    </Tabs>
-  );
+    const { user } = useAuth();
+
+    const isInitialSetup = user?.location === "";
+
+    return (
+        <Stack screenOptions={{ headerShown: false }}>
+            {isInitialSetup ? (
+                <Stack.Screen name="(initialConfig)" options={{ headerShown: false }} />
+            ) : (
+                <Stack.Screen name="(tabs)" />
+            )}
+        </Stack>
+    );
 }

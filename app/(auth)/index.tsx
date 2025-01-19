@@ -5,8 +5,6 @@ import { Button } from "~/components/ui/button";
 
 export default function Index() {
 
-    const { login } = useAuth();
-
     const handleLogin = () => {
         router.navigate("/(auth)/login");
     };

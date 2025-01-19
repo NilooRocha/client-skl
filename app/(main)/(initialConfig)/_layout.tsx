@@ -1,7 +1,7 @@
 import { Platform } from "react-native";
-import { Stack } from "expo-router";
+import { Slot, Stack } from "expo-router";
 
-export default function AuthLayout() {
+export default function InitialConfigLayout() {
   return (
     <Stack
       screenOptions={{
@@ -10,8 +10,6 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="login" />
-      <Stack.Screen name="otp" options={{ presentation: 'modal' }} />
     </Stack>
   )
 }
