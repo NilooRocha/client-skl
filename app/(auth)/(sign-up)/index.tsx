@@ -15,6 +15,8 @@ import {
 import { Input } from "~/components/ui/input";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useToast } from "~/context/ToastContext";
+import { handleError } from "~/lib/utils";
 
 const schema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -49,6 +51,9 @@ export default function Signin() {
     },
   });
 
+  const { showToast } = useToast();
+
+
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       const response = await fetch("http://192.168.1.58:8080/user", {
@@ -63,16 +68,23 @@ export default function Signin() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create user");
+
+      if (response.status === 409) {
+        showToast('Email already registered! Try to login.', 'error')
+        return null;
       }
+
 
       router.push({
         pathname: "/(auth)/otp",
         params: { userEmail: data.email },
       });
+
+
     } catch (error) {
       console.error("Error:", error);
+      handleError(error, showToast);
+      return null;
     }
   };
 

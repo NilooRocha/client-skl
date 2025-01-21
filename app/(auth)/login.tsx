@@ -33,30 +33,31 @@ export default function Login() {
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    try {
-      const user = await login(data.email, data.password);
-      console.log(`Login successful, welcome back ${user?.fullName}`);
+    setIsInvalideCredentials(false);
 
-      if (user?.isVerified) {
-        if (user?.location === "") {
-          router.navigate("/(main)/(initialConfig)");
-        } else {
-          router.navigate("/(main)/(tabs)/home");
-        }
+    const user = await login(data.email, data.password);
+
+    if (!user) {
+      setIsInvalideCredentials(true);
+      return null;
+    }
+
+    console.log(`Login successful, welcome back ${user.fullName}`);
+
+    if (user.isVerified) {
+      if (user.location === "") {
+        router.navigate("/(main)/(initialConfig)");
       } else {
-        router.push({
-          pathname: "/(auth)/otp",
-          params: { userEmail: data.email },
-        })
+        router.navigate("/(main)/(tabs)/home");
       }
-
-
-
-    } catch (error) {
-      console.error("Login failed:", error);
-      setIsInvalideCredentials(true)
+    } else {
+      router.push({
+        pathname: "/(auth)/otp",
+        params: { userEmail: data.email },
+      });
     }
   };
+
 
   return (
     <View className="mt-12 p-4 flex-1">

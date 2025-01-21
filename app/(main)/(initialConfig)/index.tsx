@@ -8,6 +8,8 @@ import { Button } from "~/components/ui/button";
 import { Ionicons } from "@expo/vector-icons";
 import SelectStudy from "./selectStudy";
 import { useAuth } from "~/context/AuthContext";
+import { handleError } from "~/lib/utils";
+import { useToast } from "~/context/ToastContext";
 
 interface StepProps {
     step: React.ReactNode;
@@ -23,8 +25,10 @@ export default function Index() {
     const [minorValue, setMinorValue] = useState<string | undefined>(undefined);
     const [isNextButtonDisabled, setIsNextButtonDisabled] = useState(false);
     const progress = React.useRef(new Animated.Value(0)).current;
+
     const { user } = useAuth();
     const router = useRouter();
+    const { showToast } = useToast();
 
     const steps: StepsProps = [
         { step: <Welcome />, label: "Start" },
@@ -85,12 +89,13 @@ export default function Index() {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to setup the user");
+                return null;
             }
 
             router.push("/(main)/(tabs)/home");
         } catch (error) {
-            console.error("Error:", error);
+            handleError(error, showToast)
+            return null;
         }
     };
 

@@ -2,8 +2,6 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import { StyleSheet, View, Text } from 'react-native';
 import { useAuth } from '~/context/AuthContext';
-import { router } from "expo-router";
-
 
 export default function Home() {
 

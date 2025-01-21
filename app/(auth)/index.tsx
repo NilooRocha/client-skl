@@ -2,8 +2,11 @@ import { useRouter, router } from "expo-router";
 import { View, } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "~/components/ui/button";
+import { useToast } from "~/context/ToastContext";
 
 export default function Index() {
+
+    const { showToast } = useToast();
 
     const handleLogin = () => {
         router.navigate("/(auth)/login");

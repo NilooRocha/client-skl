@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import Cookies from "js-cookie";
 import { User } from "~/types/user";
 import { AuthContextType } from "~/types/auth";
+import { useToast } from "./ToastContext";
+import { handleError } from "~/lib/utils";
 
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -9,6 +11,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState<User>();
+
+    const { showToast } = useToast();
+
 
     useEffect(() => {
         const token = Cookies.get("Authorization");
@@ -29,20 +34,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 });
 
                 if (!response.ok) {
-                    return
+                    return null;
                 }
 
                 const userData = await response.json();
 
                 if (!userData) {
-                    return
+                    return null;
+
                 }
 
                 setUser(userData);
                 setIsAuthenticated(true);
             } catch (error) {
                 console.error("Error fetching user data:", error);
-                return
+                handleError(error, showToast)
+                return null;
             }
         };
 
@@ -58,26 +65,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ email, password }),
-                credentials: "include"
+                credentials: "include",
             });
 
-            if (!response.ok) {
-                throw new Error("Invalid email or password");
+            if (response.status === 401) {
+                // console.error("Login request failed with status:", response.status);
+                showToast("Invalid credentials", "error");
+                return null;
             }
 
             const userData = await response.json();
 
             if (!userData) {
-                throw new Error("Invalid email or password");
+                showToast("Unable to process login. Try again later.", "error");
+                return null;
             }
+
             setUser(userData);
             setIsAuthenticated(true);
             return userData;
         } catch (error) {
-            console.error("Login failed:", error);
-            throw error;
+            console.error("Unexpected error during login:", error);
+            handleError(error, showToast);
+            return null;
         }
     };
+
 
     const logout = async () => {
         const response = await fetch("http://192.168.1.58:8080/logout", {

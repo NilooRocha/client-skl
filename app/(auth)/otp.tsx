@@ -1,16 +1,21 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { TextInput, View, Text, Pressable } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Button } from "~/components/ui/button";
 import { useAuth } from "~/context/AuthContext";
+import { useToast } from "~/context/ToastContext";
+import { handleError } from "~/lib/utils";
 
 export default function Otp() {
   const { userEmail } = useLocalSearchParams();
   const { isAuthenticated, user } = useAuth();
+  const { showToast } = useToast();
 
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [otpError, setOtpError] = useState(false);
   const inputRefs = useRef<Array<TextInput | null>>([]);
+  const [resendDisabled, setResendDisabled] = useState(false);
+  const [timer, setTimer] = useState(0);
 
   const handleOtpChange = (value: string, index: number) => {
     const newOtp = [...otp];
@@ -24,6 +29,29 @@ export default function Otp() {
     if (value === "" && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
+  };
+
+  const startTimer = () => {
+    setResendDisabled(true);
+    setTimer(150); // 2 minutes and 30 seconds = 150 seconds
+  };
+
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    } else {
+      setResendDisabled(false);
+    }
+  }, [timer]);
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   const onSubmit = async () => {
@@ -42,7 +70,8 @@ export default function Otp() {
         });
 
         if (!response.ok) {
-          throw new Error("Invalid OTP");
+          setOtpError(true);
+          return null;
         }
 
         console.log("OTP verified successfully");
@@ -53,12 +82,12 @@ export default function Otp() {
             router.replace("/(main)/(tabs)/home");
           }
         } else {
-
           router.replace("/(auth)/login");
         }
       } catch (error) {
-        console.error("Error verifying OTP:", error);
+        handleError(error, showToast);
         setOtpError(true);
+        return null;
       }
     } else {
       setOtpError(true);
@@ -67,22 +96,27 @@ export default function Otp() {
 
   const resendCode = async () => {
     try {
-      const response = await fetch("http://192.168.1.58:8080/resend-verification-code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: userEmail }),
-      });
+      startTimer(); // Start the timer when the button is clicked
+      const response = await fetch(
+        "http://192.168.1.58:8080/resend-verification-code",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: userEmail }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error("Failed to resend verification code");
+        showToast("Failed to resend verification code.", "error");
+        return null;
       }
 
       console.log("Verification code resent successfully");
     } catch (error) {
-      console.error("Error resending verification code:", error);
-    } finally {
+      handleError(error, showToast);
+      return null;
     }
   };
 
@@ -129,12 +163,21 @@ export default function Otp() {
       </Button>
 
       <View className="flex-row justify-center items-center mt-4">
-        <Text className="text-foreground text-xl">Didn't receive the code? </Text>
-        <Pressable onPress={resendCode}>
-          <Text className={`text-xl font-bold text-primary`}>
-            Send Again
-          </Text>
-        </Pressable>
+        <View className="flex items-center justify-center" >
+          {resendDisabled && (
+            <Text className="text-foreground text-xl">
+              You can request again in {formatTime(timer)}
+            </Text>
+          )}
+
+          <View className="flex-row justify-center items-center" >
+            <Text className="text-foreground text-xl ">Didn't receive the code? </Text>
+            <Button disabled={resendDisabled} onPress={resendCode} variant="link" >
+              <Text className="text-primary text-xl font-bold no-underline">Send again</Text>
+            </Button>
+          </View>
+
+        </View>
       </View>
     </View>
   );
