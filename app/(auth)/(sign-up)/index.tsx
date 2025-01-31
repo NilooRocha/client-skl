@@ -1,9 +1,9 @@
-import React, { useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from "@gorhom/bottom-sheet";
-import { Pressable, View, Text, Alert } from "react-native";
+import { Pressable, View, Text, Alert, Image } from "react-native";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -40,19 +40,20 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function Signin() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
-    // TODO: remove default value
     defaultValues: {
-      fullName: "aaaaa",
-      email: "aaaa@aaa.aa",
-      password: "aaaa",
-      confirmPassword: "aaaa",
+      // fullName: "aaaaa",
+      // email: "aaaa@aaa.aa",
+      // password: "aaaa",
+      // confirmPassword: "aaaa",
     },
   });
 
   const { showToast } = useToast();
-
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
@@ -68,19 +69,15 @@ export default function Signin() {
         }),
       });
 
-
       if (response.status === 409) {
-        showToast('Email already registered! Try to login.', 'error')
+        showToast('Email already registered! Try to login.', 'error');
         return null;
       }
-
 
       router.push({
         pathname: "/(auth)/otp",
         params: { userEmail: data.email },
       });
-
-
     } catch (error) {
       console.error("Error:", error);
       handleError(error, showToast);
@@ -115,20 +112,13 @@ export default function Signin() {
   return (
     <>
       <View className="mt-12 p-4 flex-1">
-        <Pressable
-          onPress={() => router.back()}
-          className="flex-row items-center mb-4"
-        >
+        <Pressable onPress={() => router.back()} className="flex-row items-center mb-4">
           <Ionicons name="arrow-back" size={24} color="black" />
         </Pressable>
 
         <FormProvider {...form}>
-          <Text className="text-4xl text-primary font-black mb-2">
-            Create Account
-          </Text>
-          <Text className="text-foreground font-semibold mb-6">
-            Sign up to continue
-          </Text>
+          <Text className="text-4xl text-primary font-black mb-2">Create Account</Text>
+          <Text className="text-foreground font-semibold mb-6">Sign up to continue</Text>
 
           <Form>
             <FormItem>
@@ -150,9 +140,7 @@ export default function Signin() {
               <View className="flex-row justify-between items-center mb-2">
                 <FormLabel>Institution Email Address</FormLabel>
                 <Pressable onPress={handleOpenSheet}>
-                  <Text className="text-sm text-primary underline">
-                    Why Institutional?
-                  </Text>
+                  <Text className="text-sm text-primary underline">Why Institutional?</Text>
                 </Pressable>
               </View>
               <FormControl
@@ -174,12 +162,25 @@ export default function Signin() {
               <FormControl
                 name="password"
                 render={({ value, onChange }) => (
-                  <Input
-                    secureTextEntry={true}
-                    placeholder="Create a password"
-                    value={value}
-                    onChangeText={onChange}
-                  />
+                  <View className="relative">
+                    <Input
+                      secureTextEntry={!showPassword}
+                      placeholder="Create a password"
+                      value={value}
+                      onChangeText={onChange}
+                    />
+                    <Pressable
+                      onPress={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-off" : "eye"}
+                        size={24}
+                        color="#374151"
+                      />
+
+                    </Pressable>
+                  </View>
                 )}
               />
               <FormMessage />
@@ -190,39 +191,47 @@ export default function Signin() {
               <FormControl
                 name="confirmPassword"
                 render={({ value, onChange }) => (
-                  <Input
-                    secureTextEntry={true}
-                    placeholder="Re-enter the password"
-                    value={value}
-                    onChangeText={onChange}
-                  />
+                  <View className="relative">
+                    <Input
+                      secureTextEntry={!showConfirmPassword}
+                      placeholder="Re-enter the password"
+                      value={value}
+                      onChangeText={onChange}
+                    />
+                    <Pressable
+                      onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    >
+                      <Ionicons
+                        name={showConfirmPassword ? "eye-off" : "eye"}
+                        size={24}
+                        color="#374151"
+                      />
+
+                    </Pressable>
+                  </View>
                 )}
               />
               <FormMessage />
             </FormItem>
 
+            <Image
+              source={require("../../../assets/peeps_signin.png")}
+              style={{ width: "100%", height: 170, resizeMode: "contain" }}
+            />
+
             <View>
               <Button onPress={form.handleSubmit(onSubmit)} size="xl" className="mt-4">
-                <Text className=" text-2xl font-semibold">Sign Up</Text>
+                <Text className="text-2xl font-semibold">Sign Up</Text>
               </Button>
 
-              <Text className=" text-foreground text-xs text-center mt-2">
+              <Text className="text-foreground text-xs text-center mt-2">
                 By signing up, you agree to our{" "}
-                <Text
-                  className="text-primary underline"
-                  onPress={() =>
-                    console.log("Navigate to Privacy Policy")
-                  }
-                >
+                <Text className="text-primary underline" onPress={() => console.log("Navigate to Privacy Policy")}>
                   Privacy Policy
-                </Text >{" "}
+                </Text>{" "}
                 and{" "}
-                <Text
-                  className="text-primary underline"
-                  onPress={() =>
-                    console.log("Navigate to Terms of Service")
-                  }
-                >
+                <Text className="text-primary underline" onPress={() => console.log("Navigate to Terms of Service")}>
                   Terms of Service
                 </Text>.
               </Text>
@@ -259,7 +268,7 @@ export default function Signin() {
             </Text>
           </BottomSheetView>
         </BottomSheet>
-      </View >
+      </View>
     </>
   );
 }

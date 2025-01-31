@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, Image } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Form, FormItem, FormLabel, FormControl, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -18,18 +18,16 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function Login() {
-
   const { login } = useAuth();
-
   const [isInvalideCredentials, setIsInvalideCredentials] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Novo estado para visibilidade da senha
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
-    // TODO: remove default value
-    defaultValues: {
-      email: "aaaa@aaa.aa",
-      password: "aaaa"
-    },
+    // defaultValues: {
+    //   email: "aaaa@aaa.aa",
+    //   password: "aaaa",
+    // },
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
@@ -58,7 +56,6 @@ export default function Login() {
     }
   };
 
-
   return (
     <View className="mt-12 p-4 flex-1">
       <Pressable onPress={() => router.back()} className="flex-row items-center mb-4">
@@ -70,6 +67,11 @@ export default function Login() {
         {isInvalideCredentials
           ? (<Text className="text-destructive font-semibold mb-6">Invalid credentials </Text>)
           : (<Text className="text-foreground font-semibold mb-6">Welcome Back!</Text>)}
+
+        <Image
+          source={require("../../assets/peeps_login.png")}
+          style={{ width: "100%", height: 170, resizeMode: "contain" }}
+        />
 
         <Form>
           <FormItem>
@@ -90,17 +92,30 @@ export default function Login() {
 
           <FormItem>
             <FormLabel>Password</FormLabel>
-            <FormControl
-              name="password"
-              render={({ value, onChange }) => (
-                <Input
-                  secureTextEntry={true}
-                  placeholder="Create a password"
-                  value={value}
-                  onChangeText={onChange}
+            <View className="relative">
+              <FormControl
+                name="password"
+                render={({ value, onChange }) => (
+                  <Input
+                    secureTextEntry={!showPassword}
+                    placeholder="Create a password"
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
+              <Pressable
+                onPress={() => setShowPassword(!showPassword)} // Alterna o estado da visibilidade da senha
+                className="absolute right-3 top-1/2 transform -translate-y-1/2"
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={24}
+                  color="#374151"
                 />
-              )}
-            />
+
+              </Pressable>
+            </View>
             <FormMessage />
           </FormItem>
 
