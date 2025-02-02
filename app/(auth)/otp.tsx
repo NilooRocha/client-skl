@@ -1,19 +1,20 @@
-import React, { useRef, useState, useEffect } from "react";
-import { TextInput, View, Text, Pressable } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
-import { Button } from "~/components/ui/button";
-import { useAuth } from "~/context/AuthContext";
-import { useToast } from "~/context/ToastContext";
-import { handleError } from "~/lib/utils";
+import { useLocalSearchParams, router } from 'expo-router';
+import React, { useRef, useState, useEffect } from 'react';
+import { TextInput, View, Text } from 'react-native';
+
+import { Button } from '~/components/ui/button';
+import { useAuth } from '~/context/AuthContext';
+import { useToast } from '~/context/ToastContext';
+import { handleError } from '~/lib/utils';
 
 export default function Otp() {
   const { userEmail } = useLocalSearchParams();
   const { isAuthenticated, user } = useAuth();
   const { showToast } = useToast();
 
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState(['', '', '', '']);
   const [otpError, setOtpError] = useState(false);
-  const inputRefs = useRef<Array<TextInput | null>>([]);
+  const inputRefs = useRef<(TextInput | null)[]>([]);
   const [resendDisabled, setResendDisabled] = useState(false);
   const [timer, setTimer] = useState(0);
 
@@ -26,7 +27,7 @@ export default function Otp() {
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (value === "" && index > 0) {
+    if (value === '' && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
@@ -51,17 +52,17 @@ export default function Otp() {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   const onSubmit = async () => {
-    const otpCode = otp.join("");
+    const otpCode = otp.join('');
     if (otpCode.length === 4) {
       try {
-        const response = await fetch("http://192.168.1.58:8080/verify-account", {
-          method: "POST",
+        const response = await fetch('http://192.168.1.58:8080/verify-account', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             email: userEmail,
@@ -71,23 +72,22 @@ export default function Otp() {
 
         if (!response.ok) {
           setOtpError(true);
-          return null;
+          return;
         }
 
-        console.log("OTP verified successfully");
+        console.log('OTP verified successfully');
         if (isAuthenticated) {
-          if (user?.location == "") {
-            router.replace("/(main)/(initialConfig)");
+          if (user?.location === '') {
+            router.replace('/(main)/(initialConfig)');
           } else {
-            router.replace("/(main)/(tabs)/home");
+            router.replace('/(main)/(tabs)/home');
           }
         } else {
-          router.replace("/(auth)/login");
+          router.replace('/(auth)/login');
         }
       } catch (error) {
         handleError(error, showToast);
         setOtpError(true);
-        return null;
       }
     } else {
       setOtpError(true);
@@ -96,56 +96,50 @@ export default function Otp() {
 
   const resendCode = async () => {
     try {
-      startTimer(); // Start the timer when the button is clicked
-      const response = await fetch(
-        "http://192.168.1.58:8080/resend-verification-code",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: userEmail }),
-        }
-      );
+      startTimer();
+      const response = await fetch('http://192.168.1.58:8080/resend-verification-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: userEmail }),
+      });
 
       if (!response.ok) {
-        showToast("Failed to resend verification code.", "error");
-        return null;
+        showToast('Failed to resend verification code.', 'error');
+        return;
       }
 
-      console.log("Verification code resent successfully");
+      console.log('Verification code resent successfully');
     } catch (error) {
       handleError(error, showToast);
-      return null;
     }
   };
 
   return (
-    <View className="mt-6 p-4 flex-1">
-      <Text className="text-4xl text-primary font-black mb-2">Verification</Text>
-      <Text className="text-foreground font-semibold mb-6">
-        Enter the code to continue
-      </Text>
+    <View className="mt-6 flex-1 p-4">
+      <Text className="mb-2 text-4xl font-black text-primary">Verification</Text>
+      <Text className="mb-6 font-semibold text-foreground">Enter the code to continue</Text>
 
       <View className="mb-6">
-        <Text className="text-gray-600 text-center">
-          We sent a code to{" "}
-          <Text className="font-bold">{userEmail || "youremail@outlook.com"}</Text>
+        <Text className="text-center text-gray-600">
+          We sent a code to{' '}
+          <Text className="font-bold">{userEmail || 'youremail@outlook.com'}</Text>
         </Text>
       </View>
 
-      <View className="flex-row justify-center space-x-4 mb-6">
+      <View className="mb-6 flex-row justify-center space-x-4">
         {otp.map((digit, index) => (
           <TextInput
             key={index}
             ref={(ref) => (inputRefs.current[index] = ref)}
-            className="w-16 h-16 text-3xl text-center border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none m-2"
+            className="m-2 h-16 w-16 rounded-lg border-2 border-gray-300 text-center text-3xl focus:border-primary focus:outline-none"
             maxLength={1}
             keyboardType="numeric"
             value={digit}
             onChangeText={(value) => handleOtpChange(value, index)}
             style={{
-              textAlign: "center",
+              textAlign: 'center',
               fontSize: 24,
               height: 64,
               width: 64,
@@ -154,29 +148,26 @@ export default function Otp() {
         ))}
       </View>
 
-      {otpError && (
-        <Text className="text-destructive text-center mb-4">Invalid OTP</Text>
-      )}
+      {otpError && <Text className="mb-4 text-center text-destructive">Invalid OTP</Text>}
 
       <Button onPress={onSubmit} size="lg" className="mt-4">
-        <Text className="font-bold text-lg">Continue</Text>
+        <Text className="text-lg font-bold">Continue</Text>
       </Button>
 
-      <View className="flex-row justify-center items-center mt-4">
-        <View className="flex items-center justify-center" >
+      <View className="mt-4 flex-row items-center justify-center">
+        <View className="flex items-center justify-center">
           {resendDisabled && (
-            <Text className="text-foreground text-xl">
+            <Text className="text-xl text-foreground">
               You can request again in {formatTime(timer)}
             </Text>
           )}
 
-          <View className="flex-row justify-center items-center" >
-            <Text className="text-foreground text-xl ">Didn't receive the code? </Text>
-            <Button disabled={resendDisabled} onPress={resendCode} variant="link" >
-              <Text className="text-primary text-xl font-bold no-underline">Send again</Text>
+          <View className="flex-row items-center justify-center">
+            <Text className="text-xl text-foreground ">Didn't receive the code? </Text>
+            <Button disabled={resendDisabled} onPress={resendCode} variant="link">
+              <Text className="text-xl font-bold text-primary no-underline">Send again</Text>
             </Button>
           </View>
-
         </View>
       </View>
     </View>

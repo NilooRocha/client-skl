@@ -1,17 +1,18 @@
-import React, { useState } from "react";
-import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Pressable, View, Text, Image } from "react-native";
-import { Button } from "~/components/ui/button";
-import { Form, FormItem, FormLabel, FormControl, FormMessage } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useAuth } from "~/context/AuthContext";
+import { Ionicons } from '@expo/vector-icons';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
+import { Pressable, View, Text, Image } from 'react-native';
+import { z } from 'zod';
+
+import { Button } from '~/components/ui/button';
+import { Form, FormItem, FormLabel, FormControl, FormMessage } from '~/components/ui/form';
+import { Input } from '~/components/ui/input';
+import { useAuth } from '~/context/AuthContext';
 
 const schema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
+  email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string(),
 });
 
@@ -19,58 +20,60 @@ type FormData = z.infer<typeof schema>;
 
 export default function Login() {
   const { login } = useAuth();
-  const [isInvalideCredentials, setIsInvalideCredentials] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Novo estado para visibilidade da senha
+  const [isInvalidCredentials, setIsInvalidCredentials] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
-    // defaultValues: {
-    //   email: "aaaa@aaa.aa",
-    //   password: "aaaa",
-    // },
+    defaultValues: {
+      email: 'aaaa@aaa.aa',
+      password: 'aaaa',
+    },
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    setIsInvalideCredentials(false);
+    setIsInvalidCredentials(false);
 
     const user = await login(data.email, data.password);
 
     if (!user) {
-      setIsInvalideCredentials(true);
+      setIsInvalidCredentials(true);
       return null;
     }
 
     console.log(`Login successful, welcome back ${user.fullName}`);
 
     if (user.isVerified) {
-      if (user.location === "") {
-        router.navigate("/(main)/(initialConfig)");
+      if (user.location === '') {
+        router.navigate('/(main)/(initialConfig)');
       } else {
-        router.navigate("/(main)/(tabs)/home");
+        router.navigate('/(main)/(tabs)/home');
       }
     } else {
       router.push({
-        pathname: "/(auth)/otp",
+        pathname: '/(auth)/otp',
         params: { userEmail: data.email },
       });
     }
   };
 
   return (
-    <View className="mt-12 p-4 flex-1">
-      <Pressable onPress={() => router.back()} className="flex-row items-center mb-4">
+    <View className="mt-12 flex-1 p-4">
+      <Pressable onPress={() => router.back()} className="mb-4 flex-row items-center">
         <Ionicons name="arrow-back" size={24} color="black" />
       </Pressable>
 
       <FormProvider {...form}>
-        <Text className="text-4xl text-primary font-black mb-2">Login Account</Text>
-        {isInvalideCredentials
-          ? (<Text className="text-destructive font-semibold mb-6">Invalid credentials </Text>)
-          : (<Text className="text-foreground font-semibold mb-6">Welcome Back!</Text>)}
+        <Text className="mb-2 text-4xl font-black text-primary">Login Account</Text>
+        {isInvalidCredentials ? (
+          <Text className="mb-6 font-semibold text-destructive">Invalid credentials </Text>
+        ) : (
+          <Text className="mb-6 font-semibold text-foreground">Welcome Back!</Text>
+        )}
 
         <Image
-          source={require("../../assets/peeps_login.png")}
-          style={{ width: "100%", height: 170, resizeMode: "contain" }}
+          source={require('../../assets/peeps_login.png')}
+          style={{ width: '100%', height: 170, resizeMode: 'contain' }}
         />
 
         <Form>
@@ -98,24 +101,25 @@ export default function Login() {
                 render={({ value, onChange }) => (
                   <Input
                     secureTextEntry={!showPassword}
-                    placeholder="Create a password"
+                    placeholder="Enter password"
                     value={value}
                     onChangeText={onChange}
                   />
                 )}
               />
               <Pressable
-                onPress={() => setShowPassword(!showPassword)} // Alterna o estado da visibilidade da senha
-                className="absolute right-3 top-1/2 transform -translate-y-1/2"
-              >
-                <Ionicons
-                  name={showPassword ? "eye-off" : "eye"}
-                  size={24}
-                  color="#374151"
-                />
-
+                onPress={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 transform">
+                <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="#374151" />
               </Pressable>
             </View>
+
+            <View className="mt-2 flex items-end">
+              <Pressable onPress={() => router.push('/(auth)/requestResetPassword')}>
+                <Text className="text-sm font-semibold text-primary">Forgot Password?</Text>
+              </Pressable>
+            </View>
+
             <FormMessage />
           </FormItem>
 
@@ -124,10 +128,10 @@ export default function Login() {
           </Button>
         </Form>
 
-        <View className="flex-row justify-center items-center mt-2">
-          <Text className="text-foreground text-xl">Don't have an account? </Text>
-          <Pressable onPress={() => router.push("/(auth)/(sign-up)")}>
-            <Text className="text-primary text-xl font-bold">Sign Up</Text>
+        <View className="mt-2 flex-row items-center justify-center">
+          <Text className="text-xl text-foreground">Don't have an account? </Text>
+          <Pressable onPress={() => router.push('/(auth)/(sign-up)')}>
+            <Text className="text-xl font-bold text-primary">Sign Up</Text>
           </Pressable>
         </View>
       </FormProvider>

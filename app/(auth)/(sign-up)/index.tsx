@@ -1,41 +1,38 @@
-import React, { useState, useRef, useCallback } from "react";
-import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from "@gorhom/bottom-sheet";
-import { Pressable, View, Text, Alert, Image } from "react-native";
-import { Button } from "~/components/ui/button";
-import {
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useToast } from "~/context/ToastContext";
-import { handleError } from "~/lib/utils";
+import { Ionicons } from '@expo/vector-icons';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from 'expo-router';
+import React, { useState, useRef, useCallback } from 'react';
+import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
+import { Pressable, View, Text, Alert, Image } from 'react-native';
+import { z } from 'zod';
 
-const schema = z.object({
-  fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z
-    .string()
-    .email({ message: "Invalid email address." })
-    .min(1, { message: "Email is required." }),
-  password: z
-    .string()
-    .min(4, { message: "Password must be at least 4 characters." })
-    .max(20, { message: "Password must be less than 20 characters." }),
-  confirmPassword: z
-    .string()
-    .min(4, { message: "Password confirmation must be at least 4 characters." })
-    .max(20, { message: "Password confirmation must be less than 20 characters." }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match.",
-  path: ["confirmPassword"],
-});
+import { Button } from '~/components/ui/button';
+import { Form, FormItem, FormLabel, FormControl, FormMessage } from '~/components/ui/form';
+import { Input } from '~/components/ui/input';
+import { useToast } from '~/context/ToastContext';
+import { handleError } from '~/lib/utils';
+
+const schema = z
+  .object({
+    fullName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+    email: z
+      .string()
+      .email({ message: 'Invalid email address.' })
+      .min(1, { message: 'Email is required.' }),
+    password: z
+      .string()
+      .min(4, { message: 'Password must be at least 4 characters.' })
+      .max(20, { message: 'Password must be less than 20 characters.' }),
+    confirmPassword: z
+      .string()
+      .min(4, { message: 'Password confirmation must be at least 4 characters.' })
+      .max(20, { message: 'Password confirmation must be less than 20 characters.' }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match.",
+    path: ['confirmPassword'],
+  });
 
 type FormData = z.infer<typeof schema>;
 
@@ -46,10 +43,10 @@ export default function Signin() {
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      // fullName: "aaaaa",
-      // email: "aaaa@aaa.aa",
-      // password: "aaaa",
-      // confirmPassword: "aaaa",
+      fullName: 'aaaaa',
+      email: 'aaaa@aaa.aa',
+      password: 'aaaa',
+      confirmPassword: 'aaaa',
     },
   });
 
@@ -57,10 +54,10 @@ export default function Signin() {
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const response = await fetch("http://192.168.1.58:8080/user", {
-        method: "POST",
+      const response = await fetch('http://192.168.1.58:8080/user', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           fullName: data.fullName,
@@ -75,18 +72,18 @@ export default function Signin() {
       }
 
       router.push({
-        pathname: "/(auth)/otp",
+        pathname: '/(auth)/otp',
         params: { userEmail: data.email },
       });
     } catch (error) {
-      console.error("Error:", error);
+      console.error('Error:', error);
       handleError(error, showToast);
       return null;
     }
   };
 
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = ["25%"];
+  const snapPoints = ['25%'];
 
   const handleOpenSheet = useCallback(() => {
     bottomSheetRef.current?.expand();
@@ -111,14 +108,14 @@ export default function Signin() {
 
   return (
     <>
-      <View className="mt-12 p-4 flex-1">
-        <Pressable onPress={() => router.back()} className="flex-row items-center mb-4">
+      <View className="mt-12 flex-1 p-4">
+        <Pressable onPress={() => router.back()} className="mb-4 flex-row items-center">
           <Ionicons name="arrow-back" size={24} color="black" />
         </Pressable>
 
         <FormProvider {...form}>
-          <Text className="text-4xl text-primary font-black mb-2">Create Account</Text>
-          <Text className="text-foreground font-semibold mb-6">Sign up to continue</Text>
+          <Text className="mb-2 text-4xl font-black text-primary">Create Account</Text>
+          <Text className="mb-6 font-semibold text-foreground">Sign up to continue</Text>
 
           <Form>
             <FormItem>
@@ -126,18 +123,14 @@ export default function Signin() {
               <FormControl
                 name="fullName"
                 render={({ value, onChange }) => (
-                  <Input
-                    placeholder="Enter full name"
-                    value={value}
-                    onChangeText={onChange}
-                  />
+                  <Input placeholder="Enter full name" value={value} onChangeText={onChange} />
                 )}
               />
               <FormMessage />
             </FormItem>
 
             <FormItem>
-              <View className="flex-row justify-between items-center mb-2">
+              <View className="mb-2 flex-row items-center justify-between">
                 <FormLabel>Institution Email Address</FormLabel>
                 <Pressable onPress={handleOpenSheet}>
                   <Text className="text-sm text-primary underline">Why Institutional?</Text>
@@ -171,14 +164,8 @@ export default function Signin() {
                     />
                     <Pressable
                       onPress={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                    >
-                      <Ionicons
-                        name={showPassword ? "eye-off" : "eye"}
-                        size={24}
-                        color="#374151"
-                      />
-
+                      className="absolute right-3 top-1/2 -translate-y-1/2 transform">
+                      <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="#374151" />
                     </Pressable>
                   </View>
                 )}
@@ -200,14 +187,12 @@ export default function Signin() {
                     />
                     <Pressable
                       onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                    >
+                      className="absolute right-3 top-1/2 -translate-y-1/2 transform">
                       <Ionicons
-                        name={showConfirmPassword ? "eye-off" : "eye"}
+                        name={showConfirmPassword ? 'eye-off' : 'eye'}
                         size={24}
                         color="#374151"
                       />
-
                     </Pressable>
                   </View>
                 )}
@@ -216,8 +201,8 @@ export default function Signin() {
             </FormItem>
 
             <Image
-              source={require("../../../assets/peeps_signin.png")}
-              style={{ width: "100%", height: 170, resizeMode: "contain" }}
+              source={require('../../../assets/peeps_signin.png')}
+              style={{ width: '100%', height: 170, resizeMode: 'contain' }}
             />
 
             <View>
@@ -225,23 +210,28 @@ export default function Signin() {
                 <Text className="text-2xl font-semibold">Sign Up</Text>
               </Button>
 
-              <Text className="text-foreground text-xs text-center mt-2">
-                By signing up, you agree to our{" "}
-                <Text className="text-primary underline" onPress={() => console.log("Navigate to Privacy Policy")}>
+              <Text className="mt-2 text-center text-xs text-foreground">
+                By signing up, you agree to our{' '}
+                <Text
+                  className="text-primary underline"
+                  onPress={() => console.log('Navigate to Privacy Policy')}>
                   Privacy Policy
-                </Text>{" "}
-                and{" "}
-                <Text className="text-primary underline" onPress={() => console.log("Navigate to Terms of Service")}>
+                </Text>{' '}
+                and{' '}
+                <Text
+                  className="text-primary underline"
+                  onPress={() => console.log('Navigate to Terms of Service')}>
                   Terms of Service
-                </Text>.
+                </Text>
+                .
               </Text>
             </View>
           </Form>
 
-          <View className="flex-row justify-center items-center mt-44">
-            <Text className="text-foreground text-xl">Already have an account? </Text>
-            <Pressable onPress={() => router.navigate("/(auth)/login")}>
-              <Text className="text-primary text-xl font-bold">Login</Text>
+          <View className="mt-44 flex-row items-center justify-center">
+            <Text className="text-xl text-foreground">Already have an account? </Text>
+            <Pressable onPress={() => router.navigate('/(auth)/login')}>
+              <Text className="text-xl font-bold text-primary">Login</Text>
             </Pressable>
           </View>
         </FormProvider>
@@ -251,20 +241,18 @@ export default function Signin() {
           ref={bottomSheetRef}
           index={-1}
           snapPoints={snapPoints}
-          enablePanDownToClose={true}
+          enablePanDownToClose
           backdropComponent={renderBackdrop}
-          onClose={handleCloseSheet}
-        >
+          onClose={handleCloseSheet}>
           <BottomSheetView className="px-4 py-4">
-            <Text className="text-lg font-bold mb-2">Why Institutional?</Text>
-            <Text className="text-foreground mb-2">
-              To ensure the authenticity and security of our platform, it is
-              necessary to use an institutional email address to log in.
+            <Text className="mb-2 text-lg font-bold">Why Institutional?</Text>
+            <Text className="mb-2 text-foreground">
+              To ensure the authenticity and security of our platform, it is necessary to use an
+              institutional email address to log in.
             </Text>
             <Text className="text-foreground">
-              Using an email associated with your college or university helps
-              verify your eligibility and allows us to offer tailored services
-              for students.
+              Using an email associated with your college or university helps verify your
+              eligibility and allows us to offer tailored services for students.
             </Text>
           </BottomSheetView>
         </BottomSheet>

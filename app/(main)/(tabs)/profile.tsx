@@ -1,5 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
-import { StyleSheet, View, Text, Button } from 'react-native';
+import { StyleSheet, View, Button } from 'react-native';
+
 import { useAuth } from '~/context/AuthContext';
 import { useToast } from '~/context/ToastContext';
 import { handleError } from '~/lib/utils';
@@ -11,11 +12,11 @@ export default function Profile() {
 
   const handleLogout = async () => {
     try {
-      await logout();
-      router.replace("/(auth)");
+      logout();
+      router.replace('/(auth)');
     } catch (error) {
-      console.error("Logout failed:", error);
-      handleError(error, showToast)
+      console.error('Logout failed:', error);
+      handleError(error, showToast);
       return null;
     }
   };
@@ -23,8 +24,8 @@ export default function Profile() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View className='mt-7 ' style={styles.container}>
-        <Button title='Logout' onPress={handleLogout} />
+      <View className="mt-7 " style={styles.container}>
+        <Button title="Logout" onPress={handleLogout} />
       </View>
     </>
   );
