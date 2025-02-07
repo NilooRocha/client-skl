@@ -1,11 +1,11 @@
 import { Stack } from 'expo-router';
 
-import { useAuth } from '~/context/AuthContext';
+import { useAuth } from '~/hooks/useAuth';
 
 export default function MainLayout() {
-  const { user } = useAuth();
+  const { userLogged } = useAuth();
 
-  const isInitialSetup = user?.location === '';
+  const isInitialSetup = userLogged?.location === '';
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

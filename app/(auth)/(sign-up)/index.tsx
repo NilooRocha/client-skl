@@ -4,14 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState, useRef, useCallback } from 'react';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
-import { Pressable, View, Text, Alert, Image } from 'react-native';
+import { Pressable, View, Text, Image } from 'react-native';
 import { z } from 'zod';
 
 import { Button } from '~/components/ui/button';
 import { Form, FormItem, FormLabel, FormControl, FormMessage } from '~/components/ui/form';
 import { Input } from '~/components/ui/input';
 import { useToast } from '~/context/ToastContext';
-import { handleError } from '~/lib/utils';
+import { useAuth } from '~/hooks/useAuth';
 
 const schema = z
   .object({
@@ -37,6 +37,9 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 export default function Signin() {
+  const { showToast } = useToast();
+  const { signUp } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -50,35 +53,23 @@ export default function Signin() {
     },
   });
 
-  const { showToast } = useToast();
-
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const response = await fetch('http://192.168.1.58:8080/user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: data.fullName,
-          email: data.email,
-          password: data.password,
-        }),
-      });
+      const response = await signUp(data.fullName, data.email, data.password);
+      console.log(response);
+      if (response.status === 201) {
+        router.push({
+          pathname: '/(auth)/otp',
+          params: { userEmail: data.email },
+        });
+      }
 
       if (response.status === 409) {
         showToast('Email already registered! Try to login.', 'error');
-        return null;
       }
-
-      router.push({
-        pathname: '/(auth)/otp',
-        params: { userEmail: data.email },
-      });
     } catch (error) {
-      console.error('Error:', error);
-      handleError(error, showToast);
-      return null;
+      console.log(error);
+      showToast('Error during sign-up. Please try again.', 'error');
     }
   };
 

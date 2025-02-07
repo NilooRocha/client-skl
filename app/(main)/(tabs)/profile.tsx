@@ -1,8 +1,8 @@
 import { Stack, useRouter } from 'expo-router';
 import { StyleSheet, View, Button } from 'react-native';
 
-import { useAuth } from '~/context/AuthContext';
 import { useToast } from '~/context/ToastContext';
+import { useAuth } from '~/hooks/useAuth';
 import { handleError } from '~/lib/utils';
 
 export default function Profile() {

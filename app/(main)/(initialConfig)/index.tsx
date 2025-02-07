@@ -9,8 +9,8 @@ import SelectStudy from './selectStudy';
 import Welcome from './welcome';
 
 import { Button } from '~/components/ui/button';
-import { useAuth } from '~/context/AuthContext';
 import { useToast } from '~/context/ToastContext';
+import { useAuth } from '~/hooks/useAuth';
 import { handleError } from '~/lib/utils';
 
 interface StepProps {
@@ -28,7 +28,7 @@ export default function Index() {
   const [isNextButtonDisabled, setIsNextButtonDisabled] = useState(false);
   const progress = React.useRef(new Animated.Value(0)).current;
 
-  const { user } = useAuth();
+  const { userLogged } = useAuth();
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -98,7 +98,7 @@ export default function Index() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: user?.email,
+          email: userLogged?.email,
           location: selectedCity,
         }),
       });

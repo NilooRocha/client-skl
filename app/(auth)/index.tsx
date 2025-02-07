@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { StatusBar } from 'expo-status-bar'; // Importando para garantir que a StatusBar se comporte conforme o esperado.
+import { StatusBar } from 'expo-status-bar';
 import { ImageBackground, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,7 +7,7 @@ import { Button } from '~/components/ui/button';
 
 export default function Index() {
   const handleLogin = () => {
-    router.navigate('/(auth)/login');
+    router.push('/(auth)/login');
   };
 
   const handleSignIn = () => {

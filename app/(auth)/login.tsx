@@ -9,7 +9,10 @@ import { z } from 'zod';
 import { Button } from '~/components/ui/button';
 import { Form, FormItem, FormLabel, FormControl, FormMessage } from '~/components/ui/form';
 import { Input } from '~/components/ui/input';
-import { useAuth } from '~/context/AuthContext';
+import { useToast } from '~/context/ToastContext';
+import { useAuth } from '~/hooks/useAuth';
+import { handleError } from '~/lib/utils';
+import { User } from '~/types/user';
 
 const schema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -20,8 +23,9 @@ type FormData = z.infer<typeof schema>;
 
 export default function Login() {
   const { login } = useAuth();
-  const [isInvalidCredentials, setIsInvalidCredentials] = useState(false);
+  const { showToast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -32,28 +36,26 @@ export default function Login() {
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    setIsInvalidCredentials(false);
+    try {
+      const user = await login(data.email, data.password);
+      if (!user) {
+        setLoginError('Invalid credentials. Please try again.');
+        return;
+      }
 
-    const user = await login(data.email, data.password);
-
-    if (!user) {
-      setIsInvalidCredentials(true);
-      return null;
+      handlePostLogin(user);
+    } catch (err) {
+      handleError(err, showToast);
     }
+  };
 
-    console.log(`Login successful, welcome back ${user.fullName}`);
+  const handlePostLogin = (user: User) => {
+    console.log(`Login successful, welcome back ${user.fullName}!`);
 
     if (user.isVerified) {
-      if (user.location === '') {
-        router.navigate('/(main)/(initialConfig)');
-      } else {
-        router.navigate('/(main)/(tabs)/home');
-      }
+      router.push(user.location ? '/(main)/(tabs)/home' : '/(main)/(initialConfig)');
     } else {
-      router.push({
-        pathname: '/(auth)/otp',
-        params: { userEmail: data.email },
-      });
+      router.push({ pathname: '/(auth)/otp', params: { userEmail: user.email } });
     }
   };
 
@@ -65,11 +67,8 @@ export default function Login() {
 
       <FormProvider {...form}>
         <Text className="mb-2 text-4xl font-black text-primary">Login Account</Text>
-        {isInvalidCredentials ? (
-          <Text className="mb-6 font-semibold text-destructive">Invalid credentials </Text>
-        ) : (
-          <Text className="mb-6 font-semibold text-foreground">Welcome Back!</Text>
-        )}
+
+        {loginError && <Text className="mb-6 font-semibold text-destructive">{loginError}</Text>}
 
         <Image
           source={require('../../assets/peeps_login.png')}

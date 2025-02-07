@@ -1,117 +1,82 @@
-import Cookies from 'js-cookie';
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { router } from 'expo-router';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
-import { useToast } from './ToastContext';
-
-import { handleError } from '~/lib/utils';
-import { AuthContextType } from '~/types/auth';
+import { login as apiLogin, logout as apiLogout, signUp as apiSignUp } from '~/api/auth';
+import { getRefreshToken, storeRefreshToken } from '~/lib/secureStore';
 import { User } from '~/types/user';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+interface AuthContextType {
+  isAuthenticated: boolean;
+  userLogged: User | null;
+  login: (email: string, password: string) => Promise<User | null>;
+  signUp: (fullName: string, email: string, password: string) => Promise<Response>;
+  logout: () => Promise<void>;
+}
+
+export const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false,
+  userLogged: null,
+  login: async () => null,
+  signUp: async () => new Response(),
+  logout: async () => {},
+});
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User>();
-
-  const { showToast } = useToast();
+  const [userLogged, setUserLogged] = useState<User | null>(null);
 
   useEffect(() => {
-    const token = Cookies.get('Authorization');
-    setIsAuthenticated(!!token);
+    const checkAuthStatus = async () => {
+      const token = await getRefreshToken();
+      if (token) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        router.push('/(auth)');
+      }
+    };
+
+    checkAuthStatus();
   }, []);
 
-  // useEffect(() => {
-  //     const fetchUserData = async () => {
-  //         if (!user?.id) return;
-
-  //         try {
-  //             const response = await fetch(`http://192.168.1.58:8080/user/${user.id}`, {
-  //                 method: "GET",
-  //                 headers: {
-  //                     "Content-Type": "application/json",
-  //                 },
-  //                 credentials: "include",
-  //             });
-
-  //             if (!response.ok) {
-  //                 return null;
-  //             }
-
-  //             const userData = await response.json();
-
-  //             if (!userData) {
-  //                 return null;
-
-  //             }
-
-  //             setUser(userData);
-  //             setIsAuthenticated(true);
-  //         } catch (error) {
-  //             console.error("Error fetching user data:", error);
-  //             handleError(error, showToast)
-  //             return null;
-  //         }
-  //     };
-
-  //     fetchUserData();
-  // }, [user]);
-
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User | null> => {
     try {
-      const response = await fetch('http://192.168.1.58:8080/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
-      });
-
-      if (response.status === 401) {
-        // console.error("Login request failed with status:", response.status);
-        showToast('Invalid credentials', 'error');
-        return null;
+      const user = await apiLogin(email, password);
+      if (user) {
+        setIsAuthenticated(true);
+        setUserLogged(user);
+        return user;
       }
-
-      const userData = await response.json();
-
-      if (!userData) {
-        showToast('Unable to process login. Try again later.', 'error');
-        return null;
-      }
-
-      setUser(userData);
-      setIsAuthenticated(true);
-      return userData;
-    } catch (error) {
-      console.error('Unexpected error during login:', error);
-      handleError(error, showToast);
       return null;
+    } catch (error) {
+      setIsAuthenticated(false);
+      throw error;
     }
   };
 
   const logout = async () => {
-    const response = await fetch('http://192.168.1.58:8080/logout', {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to logout.');
-    }
-    Cookies.remove('Authorization');
+    await apiLogout();
     setIsAuthenticated(false);
+    router.push('/(auth)/login');
+  };
+
+  const signUp = async (fullName: string, email: string, password: string) => {
+    try {
+      const response = await apiSignUp(fullName, email, password);
+      setIsAuthenticated(true);
+      if (response.status === 409) {
+        return response as unknown as Response;
+      }
+      return response as unknown as Response;
+    } catch (error) {
+      setIsAuthenticated(false);
+      throw error;
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userLogged, login, logout, signUp }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
-  return context;
 };

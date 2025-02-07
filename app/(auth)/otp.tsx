@@ -2,14 +2,15 @@ import { useLocalSearchParams, router } from 'expo-router';
 import React, { useRef, useState, useEffect } from 'react';
 import { TextInput, View, Text } from 'react-native';
 
+import { verifyOtp } from '~/api/auth';
 import { Button } from '~/components/ui/button';
-import { useAuth } from '~/context/AuthContext';
 import { useToast } from '~/context/ToastContext';
+import { useAuth } from '~/hooks/useAuth';
 import { handleError } from '~/lib/utils';
 
 export default function Otp() {
   const { userEmail } = useLocalSearchParams();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, userLogged } = useAuth();
   const { showToast } = useToast();
 
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -59,25 +60,10 @@ export default function Otp() {
     const otpCode = otp.join('');
     if (otpCode.length === 4) {
       try {
-        const response = await fetch('http://192.168.1.58:8080/verify-account', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: userEmail,
-            code: otpCode,
-          }),
-        });
+        await verifyOtp(userEmail as string, otpCode);
 
-        if (!response.ok) {
-          setOtpError(true);
-          return;
-        }
-
-        console.log('OTP verified successfully');
         if (isAuthenticated) {
-          if (user?.location === '') {
+          if (userLogged?.location === '') {
             router.replace('/(main)/(initialConfig)');
           } else {
             router.replace('/(main)/(tabs)/home');
@@ -86,8 +72,9 @@ export default function Otp() {
           router.replace('/(auth)/login');
         }
       } catch (error) {
-        handleError(error, showToast);
+        console.error('Error during OTP verification:', error);
         setOtpError(true);
+        handleError(error, showToast);
       }
     } else {
       setOtpError(true);

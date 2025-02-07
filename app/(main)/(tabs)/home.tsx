@@ -2,17 +2,17 @@ import { Stack } from 'expo-router';
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 
-import { useAuth } from '~/context/AuthContext';
+import { useAuth } from '~/hooks/useAuth';
 
 export default function Home() {
-  const { user } = useAuth();
+  const { userLogged } = useAuth();
 
   return (
     <>
       <Stack.Screen options={{ title: 'Home' }} />
       <View style={styles.container}>
         <Text style={styles.title}>Welcome back!</Text>
-        <Text>Hello {user?.fullName}</Text>
+        <Text>Hello {userLogged?.fullName}</Text>
       </View>
     </>
   );
