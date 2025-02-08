@@ -38,6 +38,7 @@ export default function Login() {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       const user = await login(data.email, data.password);
+
       if (!user) {
         setLoginError('Invalid credentials. Please try again.');
         return;

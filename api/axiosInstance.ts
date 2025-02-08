@@ -37,7 +37,7 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch (refreshError) {
-        console.error('Token refresh failed:', refreshError);
+        console.log('Token refresh failed:', refreshError);
         return Promise.reject(refreshError);
       }
     }

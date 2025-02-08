@@ -2,7 +2,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import React, { useRef, useState, useEffect } from 'react';
 import { TextInput, View, Text } from 'react-native';
 
-import { verifyOtp } from '~/api/auth';
+import { resendVerificationCode, verifyOtp } from '~/api/auth';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/context/ToastContext';
 import { useAuth } from '~/hooks/useAuth';
@@ -84,19 +84,7 @@ export default function Otp() {
   const resendCode = async () => {
     try {
       startTimer();
-      const response = await fetch('http://192.168.1.58:8080/resend-verification-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: userEmail }),
-      });
-
-      if (!response.ok) {
-        showToast('Failed to resend verification code.', 'error');
-        return;
-      }
-
+      await resendVerificationCode(userEmail as string);
       console.log('Verification code resent successfully');
     } catch (error) {
       handleError(error, showToast);

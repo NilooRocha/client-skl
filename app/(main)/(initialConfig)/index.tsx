@@ -8,6 +8,7 @@ import SelectCity from './selectCity';
 import SelectStudy from './selectStudy';
 import Welcome from './welcome';
 
+import { firstTimeSetup } from '~/api/auth';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/context/ToastContext';
 import { useAuth } from '~/hooks/useAuth';
@@ -80,7 +81,7 @@ export default function Index() {
     if (currentStep < steps.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      onSubmit();
+      onSubmit().then();
     }
   };
 
@@ -92,22 +93,11 @@ export default function Index() {
 
   const onSubmit = async () => {
     try {
-      const response = await fetch('http://192.168.1.58:8080/user/first-time-setup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: userLogged?.email,
-          location: selectedCity,
-        }),
-      });
-
-      if (!response.ok) {
-        return null;
+      if (userLogged && selectedCity) {
+        await firstTimeSetup(userLogged.email, selectedCity);
+        router.push('/(main)/(tabs)/home');
       }
-
-      router.push('/(main)/(tabs)/home');
+      return null;
     } catch (error) {
       handleError(error, showToast);
       return null;

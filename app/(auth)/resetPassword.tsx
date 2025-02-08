@@ -6,6 +6,7 @@ import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { Pressable, View, Text } from 'react-native';
 import { z } from 'zod';
 
+import { resetPassword } from '~/api/auth';
 import { Button } from '~/components/ui/button';
 import { Form, FormItem, FormLabel, FormControl, FormMessage } from '~/components/ui/form';
 import { Input } from '~/components/ui/input';
@@ -44,26 +45,11 @@ export default function ResetPassword() {
   });
 
   const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzg0NTM5NTYsInN1YiI6IlM4V1lsNTdDIn0.5jC97QKczr2q87d-Q2fOKSq76I17-Hp1ijgHFD5NnZ0';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzkwMjgyMzEsInN1YiI6IjJlNnBFeUJOIn0.ZyCyDW5oiXPQvpTj2d3OXH9c2uBxoU6MiNdNOxy1KZo';
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const response = await fetch('http://192.168.1.58:8080/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          resetToken: token,
-          newPassword: data.password,
-        }),
-      });
-
-      if (!response.ok) {
-        showToast('Error resetting password. Please try again.', 'error');
-        return;
-      }
-
+      await resetPassword(token, data.password);
       showToast('Password reset successful.', 'success');
       router.replace('/(auth)/login');
     } catch (error) {

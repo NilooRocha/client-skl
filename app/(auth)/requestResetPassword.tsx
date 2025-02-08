@@ -6,6 +6,7 @@ import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { Pressable, View, Text } from 'react-native';
 import { z } from 'zod';
 
+import { requestResetPassword } from '~/api/auth';
 import { Button } from '~/components/ui/button';
 import { Form, FormItem, FormLabel, FormControl, FormMessage } from '~/components/ui/form';
 import { Input } from '~/components/ui/input';
@@ -30,20 +31,14 @@ export default function RequestResetPassword() {
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const response = await fetch('http://192.168.1.58:8080/request-reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: data.email }),
-      });
+      const response = await requestResetPassword(data.email);
 
       if (response.status === 500) {
         showToast('Email not registered! Try to sign-up.', 'error');
         router.replace('/(auth)/(sign-up)');
-        return null;
+        return;
       }
-
+      router.back();
       showToast('Password reset request sent. Check your email.', 'success');
       router.replace('/(auth)/login');
     } catch (error) {

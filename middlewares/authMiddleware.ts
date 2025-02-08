@@ -7,7 +7,7 @@ export const authMiddleware = async () => {
   const refreshToken = await getRefreshToken();
 
   if (!refreshToken) {
-    router.push('/(auth)/login'); // Redireciona para o login se o refresh token não estiver presente
+    // router.push('/(auth)/login'); // Redireciona para o login se o refresh token não estiver presente
   }
 
   // Verificar expiração do refresh token aqui, se necessário (por exemplo, com JWT)

@@ -1,11 +1,15 @@
 import '../global.css';
 
-import { Stack } from 'expo-router';
+import { useFonts, Roboto_400Regular, Roboto_700Bold } from '@expo-google-fonts/roboto';
+import { SplashScreen, Stack } from 'expo-router';
+import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AuthProvider } from '~/context/AuthContext';
 import { ToastProvider } from '~/context/ToastContext';
 import { useAuth } from '~/hooks/useAuth';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   return (
@@ -19,6 +23,21 @@ export default function App() {
 
 function RootLayout() {
   const { isAuthenticated } = useAuth();
+
+  const [loaded, error] = useFonts({
+    Roboto_400Regular,
+    Roboto_700Bold,
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1, height: '100%' }}>

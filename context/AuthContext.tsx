@@ -41,13 +41,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string): Promise<User | null> => {
     try {
-      const user = await apiLogin(email, password);
-      if (user) {
-        setIsAuthenticated(true);
-        setUserLogged(user);
-        return user;
+      const response = await apiLogin(email, password);
+      const refreshToken = response.headers['refresh-token'];
+
+      if (refreshToken) {
+        console.log(refreshToken);
+        await storeRefreshToken(refreshToken);
+        console.log(getRefreshToken());
       }
-      return null;
+
+      setIsAuthenticated(true);
+      const user: User = response.data as User;
+      setUserLogged(user);
+      return user;
     } catch (error) {
       setIsAuthenticated(false);
       throw error;
@@ -57,19 +63,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await apiLogout();
     setIsAuthenticated(false);
-    router.push('/(auth)/login');
   };
 
   const signUp = async (fullName: string, email: string, password: string) => {
     try {
       const response = await apiSignUp(fullName, email, password);
-      setIsAuthenticated(true);
       if (response.status === 409) {
         return response as unknown as Response;
       }
       return response as unknown as Response;
     } catch (error) {
-      setIsAuthenticated(false);
       throw error;
     }
   };

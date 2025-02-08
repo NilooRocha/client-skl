@@ -9,6 +9,7 @@ export const handleError = (
   error: any,
   showToast: (message: string, type: 'error' | 'success') => void
 ) => {
+  console.log(error);
   const fallbackMessage = 'Something went wrong. Please try again later.';
   if (error.response) {
     const status = error.response.status;
