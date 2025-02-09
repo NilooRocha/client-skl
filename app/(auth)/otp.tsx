@@ -66,7 +66,7 @@ export default function Otp() {
           if (userLogged?.location === '') {
             router.replace('/(main)/(initialConfig)');
           } else {
-            router.replace('/(main)/(tabs)/home');
+            router.replace('/(main)/(tabs)/discover');
           }
         } else {
           router.replace('/(auth)/login');

@@ -4,12 +4,12 @@ import { StyleSheet, View, Text } from 'react-native';
 
 import { useAuth } from '~/hooks/useAuth';
 
-export default function Home() {
+export default function Discover() {
   const { userLogged } = useAuth();
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Home' }} />
+      <Stack.Screen options={{ title: 'Discover' }} />
       <View style={styles.container}>
         <Text style={styles.title}>Welcome back!</Text>
         <Text>Hello {userLogged?.fullName}</Text>
