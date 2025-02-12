@@ -4,8 +4,8 @@ import { View, Text, FlatList, Pressable } from 'react-native';
 import { Input } from '~/components/ui/input';
 
 interface SelectCityProps {
-  selectedCity: string | null;
-  setSelectedCity: (city: string | null) => void;
+  selectedCity?: string | undefined;
+  setSelectedCity: (city: string | undefined) => void;
 }
 
 const cities = ['Roma', 'Milano', 'Napoli'];

@@ -23,13 +23,13 @@ type StepsProps = StepProps[];
 
 export default function Index() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
   const [majorValue, setMajorValue] = useState<string | undefined>(undefined);
   const [minorValue, setMinorValue] = useState<string | undefined>(undefined);
   const [isNextButtonDisabled, setIsNextButtonDisabled] = useState(false);
   const progress = React.useRef(new Animated.Value(0)).current;
 
-  const { userLogged } = useAuth();
+  const { userLogged, reloadUser } = useAuth();
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -39,17 +39,17 @@ export default function Index() {
       step: <SelectCity selectedCity={selectedCity} setSelectedCity={setSelectedCity} />,
       label: 'Select city',
     },
-    {
-      step: (
-        <SelectStudy
-          majorValue={majorValue}
-          setMajorValue={setMajorValue}
-          minorValue={minorValue}
-          setMinorValue={setMinorValue}
-        />
-      ),
-      label: 'Submit study',
-    },
+    // {
+    //   step: (
+    //     <SelectStudy
+    //       majorValue={majorValue}
+    //       setMajorValue={setMajorValue}
+    //       minorValue={minorValue}
+    //       setMinorValue={setMinorValue}
+    //     />
+    //   ),
+    //   label: 'Submit study',
+    // },
     { step: <Complete />, label: 'Finish' },
   ];
 
@@ -94,7 +94,8 @@ export default function Index() {
   const onSubmit = async () => {
     try {
       if (userLogged && selectedCity) {
-        await firstTimeSetup(userLogged.email, selectedCity);
+        await firstTimeSetup(userLogged.id, selectedCity);
+        await reloadUser();
         router.push('/(main)/(tabs)/(discover)');
       }
       return null;

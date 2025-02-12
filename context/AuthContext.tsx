@@ -1,7 +1,12 @@
 import { router } from 'expo-router';
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
-import { login as apiLogin, logout as apiLogout, signUp as apiSignUp } from '~/api/auth';
+import {
+  login as apiLogin,
+  logout as apiLogout,
+  signUp as apiSignUp,
+  readUser as apiGetUser,
+} from '~/api/auth';
 import { getRefreshToken, storeRefreshToken } from '~/lib/secureStore';
 import { User } from '~/types/user';
 
@@ -11,6 +16,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<User | null>;
   signUp: (fullName: string, email: string, password: string) => Promise<Response>;
   logout: () => Promise<void>;
+  reloadUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -19,6 +25,7 @@ export const AuthContext = createContext<AuthContextType>({
   login: async () => null,
   signUp: async () => new Response(),
   logout: async () => {},
+  reloadUser: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -77,8 +84,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const reloadUser = async () => {
+    if (!userLogged) return;
+
+    try {
+      const response = await apiGetUser(userLogged.id);
+      setUserLogged(response.data as User);
+    } catch (error) {
+      console.log('Failed to reload user:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userLogged, login, logout, signUp }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, userLogged, login, logout, signUp, reloadUser }}>
       {children}
     </AuthContext.Provider>
   );

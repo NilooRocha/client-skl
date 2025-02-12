@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import React from 'react';
-import { View, Text, Image, ScrollView } from 'react-native';
+import { View, Text, Image, ScrollView, Share } from 'react-native';
 
 import { ProfileOption } from '~/components/ProfileOption';
 import { Button } from '~/components/ui/button';
@@ -19,6 +19,16 @@ export default function Index() {
       router.replace('/(auth)');
     } catch (error) {
       console.error('Logout failed:', error);
+      handleError(error, showToast);
+    }
+  };
+
+  const onShare = async () => {
+    try {
+      await Share.share({
+        message: 'https://games.skillz.com/mobile',
+      });
+    } catch (error: any) {
       handleError(error, showToast);
     }
   };
@@ -43,38 +53,44 @@ export default function Index() {
             icon="person-outline"
             title="Personal details"
             description="Name, avatar, and more"
-            onPress={() => router.push('/(main)/(tabs)/(profile)/settings')}
+            onPress={() => router.push('/(main)/(tabs)/(profile)/personalDetails')}
           />
+          {/*<ProfileOption*/}
+          {/*  icon="school-outline"*/}
+          {/*  title="Studies"*/}
+          {/*  description="Majors and Minors"*/}
+          {/*  onPress={() => router.push('/(main)/(tabs)/(profile)/studies')}*/}
+          {/*/>*/}
+
           <ProfileOption
-            icon="school-outline"
-            title="Studies"
-            description="Majors and Minors"
-            onPress={() => console.log('Pressed Studies')}
+            icon="location-outline"
+            title="Location"
+            onPress={() => router.push('/(main)/(tabs)/(profile)/city')}
           />
 
           <Text className="my-6 text-2xl font-bold text-foreground">Useful actions</Text>
           <ProfileOption
             icon="gift-outline"
             title="Invite your friends"
-            onPress={() => console.log('Pressed Invite your friends')}
+            onPress={() => onShare()}
           />
-          <ProfileOption
-            icon="chatbox-ellipses-outline"
-            title="Share your ideas"
-            onPress={() => console.log('Pressed Share your ideas')}
-          />
+          {/*<ProfileOption*/}
+          {/*  icon="chatbox-ellipses-outline"*/}
+          {/*  title="Share your ideas"*/}
+          {/*  onPress={() => console.log('Pressed Share your ideas')}*/}
+          {/*/>*/}
 
           <Text className="my-6 text-2xl font-bold text-foreground">Settings</Text>
           <ProfileOption
             icon="settings-outline"
             title="App settings"
-            onPress={() => console.log('Pressed App settings')}
+            onPress={() => router.push('/(main)/(tabs)/(profile)/settings')}
           />
           <ProfileOption
             icon="lock-closed-outline"
             title="Security"
-            description="Password, PIN, and more"
-            onPress={() => console.log('Pressed Security')}
+            description="Change password"
+            onPress={() => router.push('/(main)/(tabs)/(profile)/changePassword')}
           />
 
           <Button onPress={handleLogout} size="lg" variant="ghost" className="my-6 ">

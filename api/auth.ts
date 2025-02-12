@@ -1,7 +1,6 @@
 import api from './axiosInstance';
 
-import { getRefreshToken, removeTokens, storeRefreshToken } from '~/lib/secureStore';
-import { User } from '~/types/user';
+import { removeTokens } from '~/lib/secureStore';
 
 export const login = async (email: string, password: string) => {
   return await api.post('/login', { email, password });
@@ -49,9 +48,18 @@ export const resetPassword = (resetToken: string, newPassword: string) => {
   });
 };
 
-export const firstTimeSetup = (email: string, location: string) => {
-  return api.post('/user/first-time-setup', {
-    email,
+export const firstTimeSetup = (id: string, location: string) => {
+  return api.post(`/user/first-time-setup/${id}`, {
+    location,
+  });
+};
+
+export const readUser = (id: string) => {
+  return api.get(`/user/${id}`);
+};
+
+export const updateLocation = (id: string, location: string) => {
+  return api.post(`/user/update-location/${id}`, {
     location,
   });
 };
