@@ -13,7 +13,7 @@ export const ProfileOption = ({ icon, title, description, onPress }: ProfileOpti
   <Pressable className="rounded border border-slate-300" onPress={onPress}>
     <View className="mx-2 flex-row items-center justify-between p-6">
       <View className="flex-row items-center">
-        <Ionicons name={icon} size={28} color="#374151" />
+        <Ionicons name={icon} size={28} color="#5048E5" />
         <View className="ml-6 flex">
           <Text className="text-xl text-foreground">{title}</Text>
           {description && (

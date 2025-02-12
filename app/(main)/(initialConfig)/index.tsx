@@ -95,7 +95,7 @@ export default function Index() {
     try {
       if (userLogged && selectedCity) {
         await firstTimeSetup(userLogged.email, selectedCity);
-        router.push('/(main)/(tabs)/discover');
+        router.push('/(main)/(tabs)/(discover)');
       }
       return null;
     } catch (error) {

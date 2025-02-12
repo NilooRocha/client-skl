@@ -30,7 +30,7 @@ export default function TabsLayout() {
           tabBarInactiveTintColor: '#37415180',
         }}>
         <Tabs.Screen
-          name="discover"
+          name="(discover)"
           options={{
             title: 'Discover',
             tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,

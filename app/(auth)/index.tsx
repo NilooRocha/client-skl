@@ -35,8 +35,6 @@ export default function Index() {
           </Button>
         </View>
       </ImageBackground>
-
-      <StatusBar style="light" />
     </SafeAreaView>
   );
 }

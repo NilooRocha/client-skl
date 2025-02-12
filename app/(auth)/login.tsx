@@ -54,7 +54,7 @@ export default function Login() {
     console.log(`Login successful, welcome back ${user.fullName}!`);
 
     if (user.isVerified) {
-      router.push(user.location ? '/(main)/(tabs)/discover' : '/(main)/(initialConfig)');
+      router.push(user.location ? '/(main)/(tabs)/(discover)' : '/(main)/(initialConfig)');
     } else {
       router.push({ pathname: '/(auth)/otp', params: { userEmail: user.email } });
     }

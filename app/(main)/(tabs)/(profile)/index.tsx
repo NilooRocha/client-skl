@@ -9,7 +9,7 @@ import { useToast } from '~/context/ToastContext';
 import { useAuth } from '~/hooks/useAuth';
 import { handleError } from '~/lib/utils';
 
-export default function Profile() {
+export default function Index() {
   const { logout } = useAuth();
   const { showToast } = useToast();
 
@@ -29,7 +29,7 @@ export default function Profile() {
         <Stack.Screen options={{ title: 'Profile' }} />
         <View className="mx-6">
           <View className="mt-6 flex items-center">
-            <View className="flex h-32 w-32 items-center justify-center rounded-full border border-slate-300">
+            <View className="flex h-32 w-32 items-center justify-center rounded-full border border-primary">
               <Image
                 source={require('~/assets/avatars/peep-95.png')}
                 className="h-28 w-28 rounded-full object-cover"
@@ -77,10 +77,10 @@ export default function Profile() {
             onPress={() => console.log('Pressed Security')}
           />
 
-          <Button onPress={handleLogout} size="lg" variant="ghost" className="my-6 w-[30%]">
-            <View className="flex-row items-center justify-center">
+          <Button onPress={handleLogout} size="lg" variant="ghost" className="my-6 ">
+            <View className="h-12 flex-row items-center justify-center">
               <Ionicons name="log-out-outline" size={20} color="black" className="mr-2" />
-              <Text className="text-lg font-semibold text-primary">Log out</Text>
+              <Text className="text-lg font-semibold text-destructive">Log out</Text>
             </View>
           </Button>
           <Text className="mb-6 text-center text-base text-foreground opacity-50">
