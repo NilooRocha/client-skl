@@ -8,10 +8,7 @@ export default function Discover() {
 
   return (
     <>
-      <View>
-        <Text>Welcome back!</Text>
-        <Text>Hello {userLogged?.fullName}</Text>
-      </View>
+      <View />
     </>
   );
 }

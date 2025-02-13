@@ -8,3 +8,8 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface UpdateUserDto {
+  fullName?: string;
+  location?: string;
+}

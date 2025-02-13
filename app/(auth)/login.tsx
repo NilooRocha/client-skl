@@ -39,6 +39,7 @@ export default function Login() {
     try {
       const user = await login(data.email, data.password);
 
+      console.log(user);
       if (!user) {
         setLoginError('Invalid credentials. Please try again.');
         return;

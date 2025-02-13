@@ -6,3 +6,8 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<User | undefined>;
   logout: () => void;
 }
+
+export interface ChangePasswordDTO {
+  currentPassword: string;
+  newPassword: string;
+}

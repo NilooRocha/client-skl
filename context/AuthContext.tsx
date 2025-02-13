@@ -51,10 +51,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await apiLogin(email, password);
       const refreshToken = response.headers['refresh-token'];
 
+      if (response.status === 401) {
+        return null;
+      }
+
       if (refreshToken) {
-        console.log(refreshToken);
         await storeRefreshToken(refreshToken);
-        console.log(getRefreshToken());
       }
 
       setIsAuthenticated(true);

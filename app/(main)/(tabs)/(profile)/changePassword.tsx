@@ -6,12 +6,19 @@ import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 import { z } from 'zod';
 
+import { changeUserPassword, updateUser } from '~/api/auth';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { useToast } from '~/context/ToastContext';
+import { useAuth } from '~/hooks/useAuth';
+import { handleError } from '~/lib/utils';
 
 const schema = z
   .object({
+    currentPassword: z
+      .string()
+      .min(4, { message: 'Password must be at least 4 characters.' })
+      .max(20, { message: 'Password must be less than 20 characters.' }),
     password: z
       .string()
       .min(4, { message: 'Password must be at least 4 characters.' })
@@ -30,19 +37,37 @@ type FormData = z.infer<typeof schema>;
 
 export default function ChangePassword() {
   const { showToast } = useToast();
+  const [showOldPassword, setShowOldPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { userLogged } = useAuth();
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
+      currentPassword: '',
       password: '',
       confirmPassword: '',
     },
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    showToast(data.password, 'success');
+    if (!userLogged?.id) {
+      return;
+    }
+
+    try {
+      await changeUserPassword(userLogged?.id, {
+        currentPassword: data.currentPassword,
+        newPassword: data.password,
+      });
+      showToast('Details updated successfully!');
+    } catch (error) {
+      handleError(error, showToast);
+    } finally {
+      router.back();
+      showToast('Password changed successfully!', 'success');
+    }
   };
 
   return (
@@ -51,8 +76,32 @@ export default function ChangePassword() {
       <Text className="mb-6 text-base text-foreground opacity-50">Enter your new password</Text>
 
       <View>
+        <View className="mb-6 pb-6 ">
+          <Text className="text-lg text-foreground">Old Password</Text>
+          <Controller
+            control={form.control}
+            name="currentPassword"
+            render={({ field: { value, onChange } }) => (
+              <View className="relative">
+                <Input
+                  secureTextEntry={!showOldPassword}
+                  placeholder="Current password"
+                  value={value}
+                  onChangeText={onChange}
+                />
+                <Pressable
+                  onPress={() => setShowOldPassword(!showOldPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transform">
+                  <Ionicons name={showOldPassword ? 'eye-off' : 'eye'} size={24} color="#374151" />
+                </Pressable>
+              </View>
+            )}
+          />
+        </View>
+
+        {/* New Password Input */}
         <View className="mb-6">
-          <Text className="text-lg text-foreground">Password</Text>
+          <Text className="text-lg text-foreground">New Password</Text>
           <Controller
             control={form.control}
             name="password"
@@ -74,6 +123,7 @@ export default function ChangePassword() {
           />
         </View>
 
+        {/* Confirm Password Input */}
         <View className="mb-6">
           <Text className="text-lg text-foreground">Confirm Password</Text>
           <Controller
@@ -101,7 +151,8 @@ export default function ChangePassword() {
           />
         </View>
 
-        <View className=" mt-5 w-full flex-row justify-between ">
+        {/* Buttons */}
+        <View className="mt-5 w-full flex-row justify-between">
           <Button onPress={() => router.back()} size="lg" variant="ghost" className="w-[30%]">
             Cancel
           </Button>

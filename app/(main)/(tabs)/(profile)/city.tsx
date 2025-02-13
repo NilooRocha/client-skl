@@ -1,15 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Animated, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
 
-import { updateLocation, verifyOtp } from '~/api/auth';
+import { updateUser } from '~/api/auth';
 import SelectCity from '~/app/(main)/(initialConfig)/selectCity';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/context/ToastContext';
 import { useAuth } from '~/hooks/useAuth';
 import { handleError } from '~/lib/utils';
+import { UpdateUserDto } from '~/types/user';
 
 export default function City() {
   const { userLogged, reloadUser } = useAuth();
@@ -24,10 +24,9 @@ export default function City() {
     }
 
     try {
-      await updateLocation(userLogged.id, selectedCity);
+      await updateUser(userLogged.id, { location: selectedCity });
       await reloadUser();
     } catch (error) {
-      console.error(error);
       handleError(error, showToast);
     } finally {
       setIsEditing(false);
@@ -50,8 +49,8 @@ export default function City() {
               <Button onPress={handleCancel} variant="ghost">
                 <Text className="text-foreground">Cancel</Text>
               </Button>
-              <Button onPress={handleSave} variant="default">
-                Save
+              <Button className="w-36" onPress={handleSave} variant="default">
+                <Text className="text-lg font-semibold">Save</Text>
               </Button>
             </View>
           </View>

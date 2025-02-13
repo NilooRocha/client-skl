@@ -1,9 +1,19 @@
 import api from './axiosInstance';
 
 import { removeTokens } from '~/lib/secureStore';
+import { ChangePasswordDTO } from '~/types/auth';
+import { UpdateUserDto } from '~/types/user';
 
 export const login = async (email: string, password: string) => {
-  return await api.post('/login', { email, password });
+  return await api.post(
+    '/login',
+    { email, password },
+    {
+      validateStatus: (status) => {
+        return (status >= 200 && status < 300) || status === 401;
+      },
+    }
+  );
 };
 
 export const logout = async () => {
@@ -49,7 +59,7 @@ export const resetPassword = (resetToken: string, newPassword: string) => {
 };
 
 export const firstTimeSetup = (id: string, location: string) => {
-  return api.post(`/user/first-time-setup/${id}`, {
+  return api.patch(`/user/first-time-setup/${id}`, {
     location,
   });
 };
@@ -58,8 +68,10 @@ export const readUser = (id: string) => {
   return api.get(`/user/${id}`);
 };
 
-export const updateLocation = (id: string, location: string) => {
-  return api.post(`/user/update-location/${id}`, {
-    location,
-  });
+export const updateUser = (id: string, payload: UpdateUserDto) => {
+  return api.patch(`/user/${id}`, payload);
+};
+
+export const changeUserPassword = (id: string, payload: ChangePasswordDTO) => {
+  return api.patch(`/change-password/${id}`, payload);
 };

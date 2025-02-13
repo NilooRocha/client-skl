@@ -100,7 +100,7 @@ export default function Index() {
             </View>
           </Button>
           <Text className="mb-6 text-center text-base text-foreground opacity-50">
-            App version 0.0.0.1
+            App version 0.0.0.1 - Alpha
           </Text>
         </View>
       </ScrollView>

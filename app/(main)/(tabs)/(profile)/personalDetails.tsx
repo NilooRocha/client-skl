@@ -29,7 +29,7 @@ export default function PersonalDetails() {
       </View>
 
       <View>
-        <UserInfoRow label="Name" value={userLogged?.fullName} editable />
+        <UserInfoRow label="Name" value={userLogged?.fullName} editable fieldKey="fullName" />
         <UserInfoRow label="Email" value={userLogged?.email} />
       </View>
 
