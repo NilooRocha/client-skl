@@ -29,10 +29,6 @@ export default function Login() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      email: 'luiza.silva@jcu.edu',
-      password: 'aaaa',
-    },
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
