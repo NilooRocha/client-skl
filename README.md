@@ -88,3 +88,19 @@ This project has been a fantastic learning experience, but there is always room 
 - **Testing**: Implementing more comprehensive unit and integration tests.
 - **State Management**: Exploring more advanced state management solutions.
 - **Accessibility**: Ensuring the app is accessible to all users.
+
+## Visual Showcase
+
+*(Include screenshots or GIFs of your app in action. Here are placeholders for now):*
+
+- **Welcome Page**: ![Welcome Page](./screenshots/screen1.jpeg)
+- **Create Account**: ![Create Account](./screenshots/screen2.jpeg)
+- **Login Screen**: ![Login Screen](./screenshots/screen3.jpeg)
+- **Change Password**: ![Change Password](./screenshots/screen4.jpeg)
+- **Profile**: ![Profile](./screenshots/screen5.jpeg)
+- **Profile2**: ![Profile2](./screenshots/screen8.jpeg)
+- **Personal Details**: ![Personal Details](./screenshots/screen7.jpeg)
+- **App Settings**: ![App Settings](./screenshots/screen6.jpeg)
+- **Location**: ![Location](./screenshots/screen9.jpeg)
+
+
